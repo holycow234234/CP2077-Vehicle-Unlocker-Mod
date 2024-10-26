@@ -4,11 +4,13 @@ local VehicleSpawnerUI = {
     Theme = require "ui/theme",
     Data = require "data",
     Spawner = require "spawner",
+    Util = require "util",
 
     VehicleFilterText = "",
 
-    SelectedVehicle = "",
-    SelectedVehiclePrettyName = ""
+    SelectedVehicle = nil,
+    SelectedVehiclePrettyName = "",
+    SelectedVehicleRec = nil
 }
 
 function VehicleSpawnerUI.Create()
@@ -16,7 +18,7 @@ function VehicleSpawnerUI.Create()
     VehicleSpawnerUI.Theme.Start()
 
     ImGui.SetNextWindowPos(0, 500, ImGuiCond.FirstUseEver)
-    ImGui.SetNextWindowSize(350, 375, ImGuiCond.Always)
+    ImGui.SetNextWindowSize(350, 400, ImGuiCond.Always)
 
     if ImGui.Begin("Vehicle Spawner") then
 
@@ -34,35 +36,33 @@ function VehicleSpawnerUI.Create()
         ImGui.PopItemWidth()
         
         local filterTextEsc = VehicleSpawnerUI.VehicleFilterText:gsub('([^%w])', '%%%1')
-
         if ImGui.BeginListBox("##VehicleList", -1, 200) then
-            for i, vehicle in ipairs(VehicleSpawnerUI.Data.Read()) do
-
-                local prettyName = Game.GetLocalizedTextByKey(Game['TDB::GetLocKey;TweakDBID'](TweakDBID.new(vehicle ..'.displayName')))
+            for i, vehicleSpawnRecord in ipairs(VehicleSpawnerUI.Data.Read()) do
+                local prettyName = vehicleSpawnRecord.name
+            
+                --if vehicle:find(filterTextEsc) then
                 
-                if vehicle:find(filterTextEsc) then
-                    if ImGui.Selectable(string.gsub(vehicle, "Vehicle.", ""), (vehicle == VehicleSpawnerUI.SelectedVehicle)) then
-                        VehicleSpawnerUI.SelectedVehicle = vehicle
-                        
-                        if prettyName == "" then 
-                            VehicleSpawnerUI.SelectedVehiclePrettyName = vehicle
-                        else
-                            VehicleSpawnerUI.SelectedVehiclePrettyName = prettyName
-                        end
+                    if ImGui.Selectable(prettyName.." "..tostring(i), (vehicleSpawnRecord.id == VehicleSpawnerUI.SelectedVehicle)) then
+                        VehicleSpawnerUI.SelectedVehicle = vehicleSpawnRecord.id
+                        VehicleSpawnerUI.SelectedVehiclePrettyName = prettyName
+                        VehicleSpawnerUI.SelectedVehicleRec = vehicleSpawnRecord
                     end
-                end
+                --end
 
-                if ImGui.IsItemHovered() and prettyName ~= "" then
-                    ImGui.SetTooltip(prettyName)
-                end
-                
+                -- if ImGui.IsItemHovered() and prettyName ~= "" then
+                --     ImGui.SetTooltip(prettyName)
+                -- end
             end
         end
+        
         ImGui.EndListBox()
 
-        if VehicleSpawnerUI.SelectedVehicle ~= "" then
+        if VehicleSpawnerUI.SelectedVehicle ~= nil then
             if ImGui.Button("Spawn Vehicle", -1, 25) then
-                VehicleSpawnerUI.Spawner.Spawn(VehicleSpawnerUI.SelectedVehicle)
+                VehicleSpawnerUI.Spawner.Spawn(VehicleSpawnerUI.SelectedVehicleRec)
+                -- VehicleSpawnerUI.SelectedVehicle = -1
+                -- VehicleSpawnerUI.SelectedVehiclePrettyName = ""
+                -- VehicleSpawnerUI.SelectedVehicleRec = nil
             end
         end
 
@@ -77,6 +77,7 @@ function VehicleSpawnerUI.Create()
         end
 
     end
+    
     ImGui.End()
 
     VehicleSpawnerUI.Theme.End()

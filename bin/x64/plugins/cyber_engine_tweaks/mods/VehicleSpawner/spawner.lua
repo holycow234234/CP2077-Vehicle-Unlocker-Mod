@@ -9,8 +9,14 @@ local VehicleSpawnerCore = {
         "vehicleTankBaseObject",
         "vehicleBikeBaseObject",
         "vehicleAVBaseObject"
-    }
+    },
+    _entitySystem
 }
+
+function VehicleSpawnerCore.getEntitySystem()
+    VehicleSpawnerCore._entitySystem = VehicleSpawnerCore._entitySystem or Game.GetDynamicEntitySystem()
+	return VehicleSpawnerCore._entitySystem
+end
 
 function VehicleSpawnerCore.Tick(deltaTime)
     VehicleSpawnerCore.DeltaTime = VehicleSpawnerCore.DeltaTime + deltaTime
@@ -42,19 +48,41 @@ end
 
 function VehicleSpawnerCore.Spawn(id)
     if not id then return end
+    if id ~= nil then print("have id ") end
+    print(id.name)
 
-	local player = Game.GetPlayer()
-	local worldForward = player:GetWorldForward()
-	local offset = Vector3.new(worldForward.x * VehicleSpawnerCore.SpawnDistance, worldForward.y * VehicleSpawnerCore.SpawnDistance, 1)
+    local entitySpec = DynamicEntitySpec.new()
 
-	local spawnTransform = player:GetWorldTransform()
-	local spawnPosition = spawnTransform.Position:ToVector4()
+	entitySpec.recordID = id.id
+	entitySpec.tags = { "CP2077UnlockerModCar" }
+	entitySpec.position = VehicleSpawnerCore.Util.GetPosition(5.5, 0.0)
+	entitySpec.orientation = VehicleSpawnerCore.Util.GetOrientation(90.0)
+    entitySpec.persistState = false
+	entitySpec.persistSpawn = false
+	entitySpec.alwaysSpawned = false
+	entitySpec.spawnInView = true
+    --entitySpec.TemplatePath =TweakDB:GetRecord(id.id):EntityTemplatePath()
+    print("spawning")
+	local entityID = VehicleSpawnerCore.getEntitySystem():CreateEntity(entitySpec)
+    --local entity = Game.FindEntityByID(entityID)
+    -- local vehiclePS = entity:GetVehiclePS()
+    -- print("spawning2")  
+    --         if vehiclePS:GetDoorInteractionState(1).value ~= "Available" then
+    --             vehiclePS:UnlockAllVehDoors()
+    --         end
+    --         print("spawning3")
+	-- local player = Game.GetPlayer()
+	-- local worldForward = player:GetWorldForward()
+	-- local offset = Vector3.new(worldForward.x * VehicleSpawnerCore.SpawnDistance, worldForward.y * VehicleSpawnerCore.SpawnDistance, 1)
 
-    local vehicleTDBID = TweakDBID.new(id)
+	-- local spawnTransform = player:GetWorldTransform()
+	-- local spawnPosition = spawnTransform.Position:ToVector4()
 
-	spawnTransform:SetPosition(spawnTransform, Vector4.new(spawnPosition.x + offset.x, spawnPosition.y + offset.y, spawnPosition.z + offset.z, spawnPosition.w))
+    -- local vehicleTDBID = TweakDBID.new(id)
+
+	-- spawnTransform:SetPosition(spawnTransform, Vector4.new(spawnPosition.x + offset.x, spawnPosition.y + offset.y, spawnPosition.z + offset.z, spawnPosition.w))
 	
-    Game.GetPreventionSpawnSystem():RequestSpawn(vehicleTDBID, -1, spawnTransform)
+    -- Game.GetPreventionSpawnSystem():RequestSpawn(vehicleTDBID, -1, spawnTransform)
 end
 
 function VehicleSpawnerCore.Despawn()
