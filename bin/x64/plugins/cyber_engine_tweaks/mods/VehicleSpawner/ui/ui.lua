@@ -18,7 +18,7 @@ function VehicleSpawnerUI.Create()
     VehicleSpawnerUI.Theme.Start()
 
     ImGui.SetNextWindowPos(0, 500, ImGuiCond.FirstUseEver)
-    ImGui.SetNextWindowSize(350, 400, ImGuiCond.Always)
+    ImGui.SetNextWindowSize(350, 450, ImGuiCond.Always)
 
     if ImGui.Begin("Vehicle Spawner") then
 
@@ -39,7 +39,7 @@ function VehicleSpawnerUI.Create()
         if ImGui.BeginListBox("##VehicleList", -1, 200) then
             for i, vehicleSpawnRecord in ipairs(VehicleSpawnerUI.Data.Read()) do
                 local prettyName = vehicleSpawnRecord.name
-            
+                --TODO renable search
                 --if vehicle:find(filterTextEsc) then
                 
                     if ImGui.Selectable(prettyName.." "..tostring(i), (vehicleSpawnRecord.id == VehicleSpawnerUI.SelectedVehicle)) then
@@ -49,25 +49,20 @@ function VehicleSpawnerUI.Create()
                     end
                 --end
 
-                -- if ImGui.IsItemHovered() and prettyName ~= "" then
-                --     ImGui.SetTooltip(prettyName)
-                -- end
+
             end
         end
         
         ImGui.EndListBox()
 
         if VehicleSpawnerUI.SelectedVehicle ~= nil then
-            if ImGui.Button("Spawn Vehicle", -1, 25) then
+            if ImGui.Button("Spawn Vehicle", -1, 40) then
                 VehicleSpawnerUI.Spawner.Spawn(VehicleSpawnerUI.SelectedVehicleRec)
-                -- VehicleSpawnerUI.SelectedVehicle = -1
-                -- VehicleSpawnerUI.SelectedVehiclePrettyName = ""
-                -- VehicleSpawnerUI.SelectedVehicleRec = nil
             end
         end
 
         if VehicleSpawnerUI.Spawner.CheckValid() then
-            if ImGui.Button("Despawn Vehicle", -1, 25) then
+            if ImGui.Button("Despawn Vehicle", -1, 40) then
                 VehicleSpawnerUI.Spawner.Despawn()
             end
 

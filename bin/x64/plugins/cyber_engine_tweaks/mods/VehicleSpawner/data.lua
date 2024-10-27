@@ -15,7 +15,6 @@ end
 
 
 function VehicleSpawnerData.Read() 
-
     if(next(VehIds) == nil) then
         local vehicleRecords = TweakDB:GetRecords("gamedataVehicle_Record")
         print("reading vehicle info from TweakDB")
@@ -28,7 +27,7 @@ function VehicleSpawnerData.Read()
         end
         table.sort(VehIds,function(a,b) return a.name < b.name end)
     end
-    return VehIds--.sort(VehIds, function(a,b) return a.name < b.name end)
+    return VehIds
 end
 
 return VehicleSpawnerData

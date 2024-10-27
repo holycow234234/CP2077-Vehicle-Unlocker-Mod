@@ -34,7 +34,6 @@ function VehicleSpawnerCore.Monitor()
 
     if player then
         local target = Game.GetTargetingSystem():GetLookAtObject(player, false, false)
-
         if VehicleSpawnerCore.Util.IfArrayHasValue(VehicleSpawnerCore.ValidVehicleTypes, target) then
             local vehicle = Game.GetTargetingSystem():GetLookAtObject(player, false, false)
             local vehiclePS = vehicle:GetVehiclePS()
@@ -61,28 +60,17 @@ function VehicleSpawnerCore.Spawn(id)
 	entitySpec.persistSpawn = false
 	entitySpec.alwaysSpawned = false
 	entitySpec.spawnInView = true
-    --entitySpec.TemplatePath =TweakDB:GetRecord(id.id):EntityTemplatePath()
-    print("spawning")
+    
+    
 	local entityID = VehicleSpawnerCore.getEntitySystem():CreateEntity(entitySpec)
-    --local entity = Game.FindEntityByID(entityID)
-    -- local vehiclePS = entity:GetVehiclePS()
-    -- print("spawning2")  
-    --         if vehiclePS:GetDoorInteractionState(1).value ~= "Available" then
-    --             vehiclePS:UnlockAllVehDoors()
-    --         end
-    --         print("spawning3")
-	-- local player = Game.GetPlayer()
-	-- local worldForward = player:GetWorldForward()
-	-- local offset = Vector3.new(worldForward.x * VehicleSpawnerCore.SpawnDistance, worldForward.y * VehicleSpawnerCore.SpawnDistance, 1)
+    local entity = Game.FindEntityByID(entityID)
+    local vehiclePS = entity:GetVehiclePS()
+    
+            if vehiclePS:GetDoorInteractionState(1).value ~= "Available" then
+                vehiclePS:UnlockAllVehDoors()
+            end
+            
 
-	-- local spawnTransform = player:GetWorldTransform()
-	-- local spawnPosition = spawnTransform.Position:ToVector4()
-
-    -- local vehicleTDBID = TweakDBID.new(id)
-
-	-- spawnTransform:SetPosition(spawnTransform, Vector4.new(spawnPosition.x + offset.x, spawnPosition.y + offset.y, spawnPosition.z + offset.z, spawnPosition.w))
-	
-    -- Game.GetPreventionSpawnSystem():RequestSpawn(vehicleTDBID, -1, spawnTransform)
 end
 
 function VehicleSpawnerCore.Despawn()
@@ -91,12 +79,10 @@ function VehicleSpawnerCore.Despawn()
     local target = Game.GetTargetingSystem():GetLookAtObject(player, false, false)
 
     if target then
-        if VehicleSpawnerCore.Util.IfArrayHasValue(VehicleSpawnerCore.ValidVehicleTypes, target) then
-
-            local targetTDBID = target:GetEntityID()
-            Game.GetPreventionSpawnSystem():RequestDespawn(targetTDBID)
-            -- target:Dispose()
-        end
+        target:Dispose()
+        local targetEntityId = target:GetEntityID()
+        VehicleSpawnerCore.getEntitySystem():DeleteEntity(targetEntityId)
+        --TODO make this so you can only despawn entities you've created
     end
 end
 
