@@ -39,15 +39,13 @@ function VehicleSpawnerUI.Create()
         if ImGui.BeginListBox("##VehicleList", -1, 200) then
             for i, vehicleSpawnRecord in ipairs(VehicleSpawnerUI.Data.Read()) do
                 local prettyName = vehicleSpawnRecord.name
-                --TODO renable search
-                --if vehicle:find(filterTextEsc) then
-                
+                if VehicleSpawnerUI.VehicleFilterText == "" or prettyName:lower():find(filterTextEsc:lower()) then
                     if ImGui.Selectable(prettyName.." "..tostring(i), (vehicleSpawnRecord.id == VehicleSpawnerUI.SelectedVehicle)) then
                         VehicleSpawnerUI.SelectedVehicle = vehicleSpawnRecord.id
                         VehicleSpawnerUI.SelectedVehiclePrettyName = prettyName
                         VehicleSpawnerUI.SelectedVehicleRec = vehicleSpawnRecord
                     end
-                --end
+                end
 
 
             end

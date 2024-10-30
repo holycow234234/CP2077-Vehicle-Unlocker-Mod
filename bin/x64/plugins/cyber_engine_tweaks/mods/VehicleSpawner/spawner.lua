@@ -47,9 +47,6 @@ end
 
 function VehicleSpawnerCore.Spawn(id)
     if not id then return end
-    if id ~= nil then print("have id ") end
-    print(id.name)
-
     local entitySpec = DynamicEntitySpec.new()
 
 	entitySpec.recordID = id.id
