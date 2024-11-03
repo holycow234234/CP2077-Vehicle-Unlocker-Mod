@@ -9,7 +9,6 @@ local VehicleSpawnerUI = {
     VehicleFilterText = "",
 
     SelectedVehicle = nil,
-    SelectedVehiclePrettyName = "",
     SelectedVehicleRec = nil
 }
 
@@ -38,16 +37,18 @@ function VehicleSpawnerUI.Create()
         local filterTextEsc = VehicleSpawnerUI.VehicleFilterText:gsub('([^%w])', '%%%1')
         if ImGui.BeginListBox("##VehicleList", -1, 200) then
             for i, vehicleSpawnRecord in ipairs(VehicleSpawnerUI.Data.Read()) do
-                local prettyName = vehicleSpawnRecord.name
-                if VehicleSpawnerUI.VehicleFilterText == "" or prettyName:lower():find(filterTextEsc:lower()) then
-                    if ImGui.Selectable(prettyName.." "..tostring(i), (vehicleSpawnRecord.id == VehicleSpawnerUI.SelectedVehicle)) then
+                local prettyName = vehicleSpawnRecord.prettyName
+                local displayName = vehicleSpawnRecord.displayName
+                if VehicleSpawnerUI.VehicleFilterText == "" or displayName:lower():find(filterTextEsc:lower()) then
+                    if ImGui.Selectable(displayName, (vehicleSpawnRecord.id == VehicleSpawnerUI.SelectedVehicle)) then
                         VehicleSpawnerUI.SelectedVehicle = vehicleSpawnRecord.id
-                        VehicleSpawnerUI.SelectedVehiclePrettyName = prettyName
                         VehicleSpawnerUI.SelectedVehicleRec = vehicleSpawnRecord
                     end
                 end
 
-
+                if ImGui.IsItemHovered() and prettyName ~= "" then
+                    ImGui.SetTooltip(prettyName)
+                end
             end
         end
         

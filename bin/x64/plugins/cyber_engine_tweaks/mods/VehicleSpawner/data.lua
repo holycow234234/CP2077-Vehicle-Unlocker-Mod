@@ -1,33 +1,77 @@
 local VehicleSpawnerData = {
-    jsonFile = "vehicles.json",
-    jsonData = {}
+    vehicleIdsFile = "vehicletweakdbids.txt",
+    vehicleSpawnRecords = {}
 }
-local VehIds = {}
+
 
 VehicleSpawnRecord = {}
 
-function VehicleSpawnRecord.init(_id,_name)
+function VehicleSpawnRecord.init(_id,_prettyname, _displayName)
     local self = setmetatable({},VehicleSpawnRecord)
     self.id = _id
-    self.name = _name
+    self.prettyName = _prettyname
+    self.displayName = _displayName
     return self
 end
 
+function VehicleSpawnerData.VehicleSpawnRecordsContainsID(id)
+    local found = false
+    for _,record in pairs(VehicleSpawnerData.vehicleSpawnRecords) do
+        if id == record.id then
+            found = true
+        end
+    end
+    return found
+end
 
-function VehicleSpawnerData.Read() 
-    if(next(VehIds) == nil) then
+function VehicleSpawnerData.VehicleSpawnRecordsContainsDisplayName(displayName)
+    local found = false
+    for _,record in pairs(VehicleSpawnerData.vehicleSpawnRecords) do
+        if displayName == record.displayName then
+            found = true
+        end
+    end
+    return found
+end
+
+function VehicleSpawnerData.Read()
+    if(next(VehicleSpawnerData.vehicleSpawnRecords) == nil) then     --TODO implement blocklist of busted or unspawnable vehicles 
+        print("reading vehicle data")
+        local file = io.open(VehicleSpawnerData.vehicleIdsFile,"rb")
+        if file ~= nil then
+            print("file exists")
+            file:close()
+            print("reading vehicle info from file")
+            for twId in io.lines(VehicleSpawnerData.vehicleIdsFile) do
+                local record = TweakDB:GetRecord(twId)
+                if record ~= nil then
+                    local prettyName = Game.GetLocalizedTextByKey(record:DisplayName())
+                    if prettyName == nil then
+                        prettyName = twId
+                    end
+                    local vehRec = VehicleSpawnRecord.init(record:GetID(),prettyName,twId)
+                    table.insert(VehicleSpawnerData.vehicleSpawnRecords,vehRec)
+                end
+            end
+        end
         local vehicleRecords = TweakDB:GetRecords("gamedataVehicle_Record")
         print("reading vehicle info from TweakDB")
         for i,vehicleRecord in ipairs(vehicleRecords) do
-            local prettyName = Game.GetLocalizedTextByKey(vehicleRecord:DisplayName())
-            if(vehicleRecord ~= nil and prettyName ~= nil and prettyName ~= "") then
-                local vehRec = VehicleSpawnRecord.init(vehicleRecord:GetID(),prettyName)
-                table.insert(VehIds,vehRec)
+            if !VehicleSpawnerData.VehicleSpawnRecordsContainsID(vehicleRecord:GetID()) then
+                local prettyName = Game.GetLocalizedTextByKey(vehicleRecord:DisplayName())
+                local dispName = prettyName 
+                if VehicleSpawnerData.VehicleSpawnRecordsContainsDisplayName(dispName) then
+                    dispName = tostring(vehicleRecord:GetID())    
+                end
+                if vehicleRecord ~= nil then
+                    local vehRec = VehicleSpawnRecord.init(vehicleRecord:GetID(),prettyName,dispName)
+                    table.insert(VehicleSpawnerData.vehicleSpawnRecords,vehRec)
+                end
             end
         end
-        table.sort(VehIds,function(a,b) return a.name < b.name end)
+        table.sort(VehicleSpawnerData.vehicleSpawnRecords,function(a,b) return a.name < b.name end)
     end
-    return VehIds
+    return VehicleSpawnerData.vehicleSpawnRecords
 end
 
 return VehicleSpawnerData
