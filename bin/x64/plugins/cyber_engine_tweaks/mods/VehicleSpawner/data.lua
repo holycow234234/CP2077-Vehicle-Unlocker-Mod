@@ -17,8 +17,9 @@ end
 function VehicleSpawnerData.VehicleSpawnRecordsContainsID(id)
     local found = false
     for _,record in pairs(VehicleSpawnerData.vehicleSpawnRecords) do
-        if id == record.id then
+        if tostring(id) == tostring(record.id) then
             found = true
+            break
         end
     end
     return found
@@ -29,6 +30,7 @@ function VehicleSpawnerData.VehicleSpawnRecordsContainsDisplayName(displayName)
     for _,record in pairs(VehicleSpawnerData.vehicleSpawnRecords) do
         if displayName == record.displayName then
             found = true
+            break
         end
     end
     return found
@@ -39,29 +41,28 @@ function VehicleSpawnerData.Read()
         print("reading vehicle data")
         local file = io.open(VehicleSpawnerData.vehicleIdsFile,"rb")
         if file ~= nil then
-            print("file exists")
-            file:close()
-            print("reading vehicle info from file")
-            for twId in io.lines(VehicleSpawnerData.vehicleIdsFile) do
+             print("reading vehicle info from file")
+             for twId in io.lines(VehicleSpawnerData.vehicleIdsFile) do
                 local record = TweakDB:GetRecord(twId)
-                if record ~= nil then
+                 if record ~= nil then
                     local prettyName = Game.GetLocalizedTextByKey(record:DisplayName())
                     if prettyName == nil then
                         prettyName = twId
                     end
                     local vehRec = VehicleSpawnRecord.init(record:GetID(),prettyName,twId)
                     table.insert(VehicleSpawnerData.vehicleSpawnRecords,vehRec)
-                end
-            end
+                 end
+             end
         end
+        file:close()
         local vehicleRecords = TweakDB:GetRecords("gamedataVehicle_Record")
         print("reading vehicle info from TweakDB")
         for i,vehicleRecord in ipairs(vehicleRecords) do
-            if !VehicleSpawnerData.VehicleSpawnRecordsContainsID(vehicleRecord:GetID()) then
+            if not VehicleSpawnerData.VehicleSpawnRecordsContainsID(vehicleRecord:GetID()) then
                 local prettyName = Game.GetLocalizedTextByKey(vehicleRecord:DisplayName())
                 local dispName = prettyName 
                 if VehicleSpawnerData.VehicleSpawnRecordsContainsDisplayName(dispName) then
-                    dispName = tostring(vehicleRecord:GetID())    
+                    dispName = tostring(vehicleRecord:GetID())
                 end
                 if vehicleRecord ~= nil then
                     local vehRec = VehicleSpawnRecord.init(vehicleRecord:GetID(),prettyName,dispName)
