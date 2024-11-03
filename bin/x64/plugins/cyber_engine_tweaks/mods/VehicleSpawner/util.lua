@@ -37,5 +37,18 @@ function VehicleSpawnerUtil.IfArrayHasValue(items, val)
 
     return false
 end
+function VehicleSpawnerUtil.GetDirection(angle)
+    return Vector4.RotateAxis(Game.GetPlayer():GetWorldForward(), Vector4.new(0, 0, 1, 0), angle / 180.0 * Pi())
+  end
+
+function VehicleSpawnerUtil.GetPosition(distance, angle)
+    local pos = Game.GetPlayer():GetWorldPosition()
+    local heading = VehicleSpawnerUtil.GetDirection(angle)
+    return Vector4.new(pos.x + (heading.x * distance), pos.y + (heading.y * distance), pos.z + heading.z, pos.w + heading.w)
+  end
+  
+  function VehicleSpawnerUtil.GetOrientation(angle)
+    return EulerAngles.ToQuat(Vector4.ToRotation(VehicleSpawnerUtil.GetDirection(angle)))
+  end
 
 return VehicleSpawnerUtil
