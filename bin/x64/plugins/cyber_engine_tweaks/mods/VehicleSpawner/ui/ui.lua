@@ -17,7 +17,7 @@ function VehicleSpawnerUI.Create()
     VehicleSpawnerUI.Theme.Start()
 
     ImGui.SetNextWindowPos(0, 500, ImGuiCond.FirstUseEver)
-    ImGui.SetNextWindowSize(350, 450, ImGuiCond.Always)
+    ImGui.SetNextWindowSize(600, 450, ImGuiCond.Appearing)
 
     if ImGui.Begin("Vehicle Spawner") then
 
